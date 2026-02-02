@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Virtual env
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+__MACOSX/
+.vscode/
+
+# Streamlit
+.streamlit/
+
+# Large data (optional)
+# If you decide NOT to push datasets, uncomment:
+# OE-all/
+# TMD-all/
+# TMU-all/
+# TMU-MT-AP-all/
