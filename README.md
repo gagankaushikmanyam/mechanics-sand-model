@@ -3,13 +3,13 @@
 
 SoilWorkbench is a **Streamlit-based calibration workbench** for sand, aligned with the **TU Braunschweig / KFSDB experimental calibration workflow**.
 
-The goal is to **reproduce the parameter identification steps exactly as described in the reference document**, while keeping the codebase clean and extensible for later upgrades (plasticity, hardening, return mapping).
+The goal is to reproduce the parameter identification steps exactly as described in the reference document, while keeping the codebase clean and extensible for later upgrades (plasticity, hardening, return mapping).
 
-----
+---
 
-1) Project Structure
+## 1) Project Structure
 
-```python
+```text
 SoilWorkbench/
 ├─ app.py
 ├─ README.md
@@ -25,7 +25,6 @@ SoilWorkbench/
 └─ TMU-MT-AP-all/
    ├─ TMU_AP1.dat
    └─ ...
-
 
 The app expects the dataset folders to exist under a common Root folder (selected in the Streamlit sidebar).
 
@@ -62,8 +61,6 @@ Strains are used as engineering strains; input files are typically in percent an
 Oedometer tests are used to identify compressibility parameters based on the void ratio–pressure relationship.
 
 4.1 Compression Law (Piecewise)
-
-The document-calibrated form is:
 
 [
 e(p) =
@@ -151,26 +148,7 @@ streamlit run app.py
 
 ⸻
 
-8) Recommended Workflow (Practical)
-
-OE-only check
-	•	Select OE files
-	•	Run OE calibration only
-	•	Inspect (e) vs (\ln(p)) and parameters (N,\lambda,\kappa,p_c)
-
-TMD calibration
-	•	Select 1–2 TMD files first
-	•	Fit (M) per file
-	•	Add more files after the first fits look stable
-
-TMU / AP validation
-	•	Select TMU/TMU-MT-AP files
-	•	Fit/overlay (q(\varepsilon_1)) and (p(\varepsilon_1))
-	•	Validate consistency of per-test (M)
-
-⸻
-
-9) Model Scope (Important)
+8) Model Scope (Important)
 
 This repository does not yet implement:
 	•	Plastic flow rules
@@ -178,40 +156,19 @@ This repository does not yet implement:
 	•	Return-mapping algorithms
 	•	Consistent tangent operators
 
-These are intentionally deferred to the next development phase to keep calibration steps:
-	•	transparent,
-	•	document-consistent,
-	•	and easy to validate.
+These are intentionally deferred to the next development phase to keep calibration steps transparent, document-consistent, and easy to validate.
 
 ⸻
 
-10) References
+9) References
 	•	TU Braunschweig – Institute of Geotechnical Engineering
 	•	Torsten Wichtmann – KFSDB Sand Database
 	•	Schofield & Wroth (1968) – Critical State Soil Mechanics
 
 ⸻
 
-11) Disclaimer
+10) Disclaimer
 
 This tool is intended for research and educational use only.
 It is not a certified geotechnical design code.
-
-⸻
-
-🧠 app.py (document-consistent calibration)
-
-What this version does:
-	•	Fits exactly the parameters fitted in the reference procedure
-	•	Calibrates per test, drainage-aware
-	•	Uses scatter for data and line for model
-	•	Keeps the UI and structure extensible for future constitutive upgrades
-
-What it does NOT do (yet):
-	•	Full MCC / DM04 plasticity
-	•	Hardening evolution
-	•	Return mapping
-	•	Consistent tangent
-
-
 
