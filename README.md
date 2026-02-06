@@ -7,9 +7,9 @@ The goal is to **reproduce the parameter identification steps exactly as describ
 
 ---
 
-## 1) Project Structure
+1) Project Structure
 
-
+```
 SoilWorkbench/
 ├─ app.py
 ├─ README.md
@@ -24,7 +24,7 @@ SoilWorkbench/
 │  └─ ...
 └─ TMU-MT-AP-all/
    ├─ TMU_AP1.dat
-   └─ ...
+   └─ ...```
 
 
 The app expects the dataset folders to exist under a common Root folder (selected in the Streamlit sidebar).
