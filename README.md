@@ -5,11 +5,11 @@ SoilWorkbench is a **Streamlit-based calibration workbench** for sand, aligned w
 
 The goal is to **reproduce the parameter identification steps exactly as described in the reference document**, while keeping the codebase clean and extensible for later upgrades (plasticity, hardening, return mapping).
 
----
+----
 
 1) Project Structure
 
-```text
+```python
 SoilWorkbench/
 ├─ app.py
 ├─ README.md
