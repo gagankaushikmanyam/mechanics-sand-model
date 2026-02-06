@@ -1,168 +1,216 @@
 # SoilWorkbench  
 ### Calibration of Sand Using TU Braunschweig (KFSDB) Experimental Data
 
-This repository provides a **Streamlit-based calibration workbench**
-for sand, following the **TU Braunschweig / KFSDB calibration methodology**.
+SoilWorkbench is a **Streamlit-based calibration workbench** for sand, aligned with the **TU Braunschweig / KFSDB experimental calibration workflow**.
 
-The objective is to **reproduce the parameter calibration exactly as described
-in the reference document**, while providing a clean, extensible research tool.
+The goal is to **reproduce the parameter identification steps exactly as described in the reference document**, while keeping the codebase clean and extensible for later upgrades (plasticity, hardening, return mapping).
 
 ---
 
-## 1. Experimental Data
+## 1) Project Structure
 
-The following experimental datasets are supported:
+```text
+SoilWorkbench/
+├─ app.py
+├─ README.md
+├─ OE-all/
+│  ├─ OE1.dat
+│  └─ ...
+├─ TMD-all/
+│  ├─ TMD1.dat
+│  └─ ...
+├─ TMU-all/
+│  ├─ TMU1.dat
+│  └─ ...
+└─ TMU-MT-AP-all/
+   ├─ TMU_AP1.dat
+   └─ ...```
 
-| Test Type | Folder | Description |
-|---------|--------|-------------|
-| Oedometer | `OE-all` | Isotropic compression: void ratio vs pressure |
-| Triaxial Drained | `TMD-all` | Shear with drained conditions |
-| Triaxial Undrained | `TMU-all` | Shear with constant volume |
-| Triaxial Undrained (AP) | `TMU-MT-AP-all` | Advanced pore-pressure tests |
+The app expects the dataset folders to exist under a common Root folder (selected in the Streamlit sidebar).
 
-Each dataset is **calibrated independently**, exactly as in the TU BAF procedure.
+⸻
 
----
+2) Experimental Datasets Supported
 
-## 2. Stress Variables
+Test Type	Folder	Typical Observables	Use in this Phase
+Oedometer (OE)	OE-all	(e), (p) (or (\sigma_v))	Compressibility parameters
+Triaxial Drained (TMD)	TMD-all	(q(\varepsilon_1)), (p(\varepsilon_1)), (\varepsilon_v(\varepsilon_1))	Strength parameter (M) (per test)
+Triaxial Undrained (TMU)	TMU-all	(q(\varepsilon_1)), (p(\varepsilon_1))	(M) (per test) validation
+Triaxial Undrained (AP)	TMU-MT-AP-all	(q(\varepsilon_1)), (p(\varepsilon_1))	(M) (per test) validation
+
+Important: In this phase, each test is treated independently, matching the document’s identification procedure (no global parameter sharing across tests).
+
+⸻
+
+3) Stress Variables and Notation
 
 Mean and deviatoric stress are defined as:
 
-\[
-p = \frac{1}{3}(\sigma_1 + 2\sigma_3), \qquad
+[
+p = \frac{1}{3}(\sigma_1 + 2\sigma_3),
+\qquad
 q = \sigma_1 - \sigma_3
-\]
+]
 
----
+Strains are used as engineering strains; input files are typically in percent and are converted to unit strain in the code.
 
-## 3. Oedometer Calibration (OE)
+⸻
 
-The oedometer test is used to calibrate **compressibility parameters**.
+4) Oedometer Calibration (OE)
 
-### 3.1 Compression Law
+Oedometer tests are used to identify compressibility parameters based on the void ratio–pressure relationship.
 
-\[
+4.1 Compression Law (Piecewise)
+
+The document-calibrated form is:
+
+[
 e(p) =
 \begin{cases}
-N - \lambda \ln(p) & p \ge p_c \\
+N - \lambda \ln(p) & p \ge p_c \
 e(p_c) - \kappa \ln\left(\dfrac{p}{p_c}\right) & p < p_c
 \end{cases}
-\]
+]
 
-### 3.2 Calibrated Parameters (per OE test)
+Where:
+	•	( \lambda ): slope of the normal compression line
+	•	( \kappa ): slope of the swelling/recompression line
+	•	( p_c ): preconsolidation pressure
+	•	( N ): void ratio intercept at ( \ln(p)=0 )
 
-- \( \lambda \) — slope of normal compression line  
-- \( \kappa \) — slope of swelling line  
-- \( p_c \) — preconsolidation pressure  
-- \( N \) — void ratio at \( \ln(p) = 0 \)
+4.2 Per-Test Fit (No Pooling)
 
-Each OE dataset is fitted **independently**.
+Each OE file is calibrated independently:
 
----
+[
+\min_{\theta}\ |e_{\text{model}}(p;\theta) - e_{\text{data}}(p)|_2^2,
+\qquad
+\theta = (N,\lambda,\kappa,p_c)
+]
 
-## 4. Triaxial Calibration (TMD, TMU, TMU-AP)
+Outputs are stored per-file and can be exported to CSV from the UI.
 
-Triaxial tests are used to calibrate the **critical state parameter**.
+⸻
 
-### 4.1 Critical State Relation
+5) Triaxial Calibration (TMD, TMU, TMU-AP)
 
-\[
-q = M \, p
-\]
+Triaxial tests are used to calibrate the critical state strength parameter per test.
 
-where:
-- \( M \) controls shear strength
-- \( M \) is calibrated **per triaxial test**
+5.1 Critical State Relation
 
----
+[
+q = M,p
+]
 
-### 4.2 Drainage Conditions
+Where (M) controls shear strength.
 
-| Test Type | Constraint |
-|---------|-----------|
-| Drained | \( \dot{\varepsilon}_v \neq 0 \) |
-| Undrained | \( \dot{\varepsilon}_v = 0 \Rightarrow \dot{p} \neq 0 \) |
+5.2 Drainage Conditions and Residuals
 
-In this implementation:
-- Drained tests fit **q–ε₁**
-- Undrained tests fit **q–ε₁ and p–ε₁**
+Test Type	Constraint	Plots/Residuals in this Phase
+Drained (TMD)	(\dot{\varepsilon}_v \neq 0)	Fit (q-\varepsilon_1); show (q-p)
+Undrained (TMU, AP)	(\dot{\varepsilon}_v = 0 \Rightarrow \dot{p}\neq 0)	Fit (q-\varepsilon_1) and (p-\varepsilon_1); show (q-p)
 
----
+In this phase (document-consistent), the app focuses on direct parameter identification rather than constitutive integration.
 
-## 5. Calibration Strategy
+⸻
 
-Each dataset is calibrated using **nonlinear least squares**:
+6) Calibration Strategy
 
-\[
-\min_{\theta} \| r(\theta) \|_2^2
-\]
+All calibrations are nonlinear least squares:
 
-- No global parameter sharing
-- No artificial regularization
-- Direct correspondence with experimental procedure
+[
+\min_{\theta}\ |r(\theta)|_2^2
+]
 
----
+Design principles (matching the document):
+	•	Per-test calibration only
+	•	No global parameter sharing
+	•	No artificial regularization
+	•	Direct correspondence with experimental procedure
 
-## 6. Streamlit Application
+⸻
 
-### Features
-- Automatic dataset discovery
-- Per-test calibration
-- OE: \( e \)–\( \ln(p) \)
-- Triaxial: \( q \)–\( \varepsilon_1 \), \( q \)–\( p \)
-- Drainage-aware residuals
-- Export of calibrated parameters (CSV)
+7) Streamlit Application
 
-Run locally:
+7.1 Features
+	•	Automatic dataset discovery from the Root folder
+	•	Multi-folder selection (OE + TMD + TMU + AP in one run)
+	•	Per-test calibration:
+	•	OE: (e)–(\ln(p))
+	•	Triaxial: (q)–(\varepsilon_1), (p)–(\varepsilon_1), (q)–(p)
+	•	Drainage-aware fitting logic
+	•	Scatter for data, line for model
+	•	Export calibrated parameters to CSV
 
-```bash
+7.2 Run locally
+
+pip install -r requirements.txt
 streamlit run app.py
-``````
 
 
 ⸻
 
-7. Model Scope (Important)
+8) Recommended Workflow (Practical)
+
+OE-only check
+	•	Select OE files
+	•	Run OE calibration only
+	•	Inspect (e) vs (\ln(p)) and parameters (N,\lambda,\kappa,p_c)
+
+TMD calibration
+	•	Select 1–2 TMD files first
+	•	Fit (M) per file
+	•	Add more files after the first fits look stable
+
+TMU / AP validation
+	•	Select TMU/TMU-MT-AP files
+	•	Fit/overlay (q(\varepsilon_1)) and (p(\varepsilon_1))
+	•	Validate consistency of per-test (M)
+
+⸻
+
+9) Model Scope (Important)
 
 This repository does not yet implement:
 	•	Plastic flow rules
-	•	Hardening laws
+	•	Hardening evolution laws
 	•	Return-mapping algorithms
-	•	Consistent tangents
+	•	Consistent tangent operators
 
-These are intentionally deferred to the next development phase.
+These are intentionally deferred to the next development phase to keep calibration steps:
+	•	transparent,
+	•	document-consistent,
+	•	and easy to validate.
 
 ⸻
 
-8. References
+10) References
 	•	TU Braunschweig – Institute of Geotechnical Engineering
 	•	Torsten Wichtmann – KFSDB Sand Database
 	•	Schofield & Wroth (1968) – Critical State Soil Mechanics
 
 ⸻
 
-9. Disclaimer
+11) Disclaimer
 
 This tool is intended for research and educational use only.
 It is not a certified geotechnical design code.
 
----
+⸻
 
-# 🧠 `app.py` (document-consistent calibration)
+🧠 app.py (document-consistent calibration)
 
-What this version **does**:
-- Fits **exactly the parameters fitted in the document**
-- Per-test, drainage-aware
-- No invented physics
-- Keeps your UI & extensibility
+What this version does:
+	•	Fits exactly the parameters fitted in the reference procedure
+	•	Calibrates per test, drainage-aware
+	•	Uses scatter for data and line for model
+	•	Keeps the UI and structure extensible for future constitutive upgrades
 
-What it **does NOT** do (yet):
-- Full MCC plasticity
-- Hardening evolution
-- Consistent tangent
+What it does NOT do (yet):
+	•	Full MCC / DM04 plasticity
+	•	Hardening evolution
+	•	Return mapping
+	•	Consistent tangent
 
-👉 This is **correct engineering sequencing**.
 
-
----
 
