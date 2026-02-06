@@ -7,9 +7,12 @@ The goal is to reproduce the parameter identification steps exactly as described
 
 ---
 
-## 1) Project Structure
+
 
 ```python
+
+1) Project Structure
+
 SoilWorkbench/
 ├─ app.py
 ├─ README.md
