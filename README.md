@@ -9,21 +9,23 @@ The goal is to reproduce the parameter identification steps exactly as described
 
 1) Project Structure
 
-SoilWorkbench/
-├─ app.py
-├─ README.md
-├─ OE-all/
-│  ├─ OE1.dat
-│  └─ ...
-├─ TMD-all/
-│  ├─ TMD1.dat
-│  └─ ...
-├─ TMU-all/
-│  ├─ TMU1.dat
-│  └─ ...
-└─ TMU-MT-AP-all/
-   ├─ TMU_AP1.dat
-   └─ ...
+## Project Structure
+
+- **SoilWorkbench/**
+  - `app.py`
+  - `README.md`
+  - **OE-all/**
+    - `OE1.dat`
+    - …
+  - **TMD-all/**
+    - `TMD1.dat`
+    - …
+  - **TMU-all/**
+    - `TMU1.dat`
+    - …
+  - **TMU-MT-AP-all/**
+    - `TMU_AP1.dat`
+    - …
 
 
 The app expects the dataset folders to exist under a common Root folder (selected in the Streamlit sidebar).
